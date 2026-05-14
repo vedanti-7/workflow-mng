@@ -1,0 +1,14 @@
+# Angular
+resource-management/node_modules/
+resource-management/dist/
+
+# Spring Boot
+pm-backend/target/
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
