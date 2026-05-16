@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 // 👇 ADD THIS AT THE TOP OF project.service.ts
 
@@ -84,7 +85,7 @@ export interface BackendProject {
 
 export class ProjectService {
 
-  private baseUrl = 'http://localhost:8080/api/projects';
+  private baseUrl = `${environment.apiUrl}/api/projects`;
   
   projectChanged$ = new Subject<void>();
 
@@ -254,45 +255,45 @@ export class ProjectService {
     form.append('reason', reason);
     form.append('leaveType', leaveType);
     if (document) form.append('document', document);
-    return this.http.post('http://localhost:8080/api/leaves/apply', form);
+    return this.http.post(`${environment.apiUrl}/api/leaves/apply`, form);
   }
 
   getLeaveBalance(empId: string) {
-    return this.http.get<any>(`http://localhost:8080/api/leaves/balance/${empId}`);
+    return this.http.get<any>(`${environment.apiUrl}/api/leaves/balance/${empId}`);
   }
 
   getMonthlyLeaves(empId: string) {
-    return this.http.get<any[]>(`http://localhost:8080/api/leaves/employee/${empId}/monthly`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/leaves/employee/${empId}/monthly`);
   }
 
   getPendingLeavesForManager(managerId: string) {
-    return this.http.get<any[]>(`http://localhost:8080/api/leaves/manager/${managerId}/pending`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/leaves/manager/${managerId}/pending`);
   }
 
   getLeavesForEmployeeBackend(empId: string) {
-    return this.http.get<any[]>(`http://localhost:8080/api/leaves/employee/${empId}`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/leaves/employee/${empId}`);
   }
 
   decideLeave(leaveId: string, status: 'Approved' | 'Rejected') {
-    return this.http.post(`http://localhost:8080/api/leaves/${leaveId}/decision`, { status }, { responseType: 'text' });
+    return this.http.post(`${environment.apiUrl}/api/leaves/${leaveId}/decision`, { status }, { responseType: 'text' });
   }
 
   // ---------------- DAILY STANDUP (backend) ----------------
 
   addStandupTask(prjId: string, title: string) {
-    return this.http.post(`http://localhost:8080/api/daily-tasks`, { prjId, title }, { responseType: 'json' });
+    return this.http.post(`${environment.apiUrl}/api/daily-tasks`, { prjId, title }, { responseType: 'json' });
   }
 
   getStandupTasksForProject(prjId: string) {
-    return this.http.get<any[]>(`http://localhost:8080/api/daily-tasks/project/${prjId}`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/daily-tasks/project/${prjId}`);
   }
 
   getTodayStandupTasks(prjId: string) {
-    return this.http.get<any[]>(`http://localhost:8080/api/daily-tasks/project/${prjId}/pending`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/daily-tasks/project/${prjId}/pending`);
   }
 
   respondToStandupTask(taskId: string, empId: string, done: boolean, comment: string) {
-    return this.http.post(`http://localhost:8080/api/daily-tasks/${taskId}/respond`,
+    return this.http.post(`${environment.apiUrl}/api/daily-tasks/${taskId}/respond`,
       { empId, done: String(done), comment }, { responseType: 'text' });
   }
 
