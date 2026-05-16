@@ -1,0 +1,429 @@
+<style>
+  :host { display: block; font-family: 'DM Sans', sans-serif; }
+
+  .tab-btn {
+    padding: 8px 18px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;
+    color: #64748b; background: transparent; border: none; cursor: pointer; transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab-btn.active { background: #1e293b; color: #fff; }
+
+  .custom-input {
+    width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+    border-radius: 10px; padding: 10px 14px; font-size: .84rem; color: #e2e8f0;
+    outline: none; font-family: 'DM Sans', sans-serif;
+  }
+  .custom-textarea {
+    width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+    border-radius: 10px; padding: 10px 14px; font-size: .84rem; color: #e2e8f0;
+    outline: none; font-family: 'DM Sans', sans-serif; min-height: 90px; resize: vertical; display: block;
+  }
+  .btn-submit {
+    background: linear-gradient(135deg, #2563eb, #4f8ef7); color: #fff;
+    font-weight: 700; font-size: .84rem; border: none; border-radius: 9px;
+    padding: 11px 22px; cursor: pointer; transition: opacity .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-submit:hover { opacity: 0.9; }
+  .btn-accept {
+    background: linear-gradient(135deg, #059669, #34d399); color: #fff;
+    font-weight: 700; font-size: .84rem; border: none; border-radius: 9px;
+    padding: 11px 22px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  h2 { font-family: 'Syne', sans-serif; font-weight: 800; }
+</style>
+
+<div style="display:flex; min-height:100vh; background:#060b14;">
+
+  <!-- SIDEBAR -->
+  <aside style="width:220px;background:rgba(13,20,37,0.95);border-right:1px solid rgba(255,255,255,0.06);padding:28px 18px;display:flex;flex-direction:column;flex-shrink:0;">
+    <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:32px;display:flex;align-items:center;gap:8px;">
+      WorkFlow<span style="width:8px;height:8px;border-radius:50%;background:#4f8ef7;box-shadow:0 0 8px #4f8ef7;display:inline-block;"></span>
+    </div>
+    <nav style="flex:1;">
+      <p style="font-size:10px;opacity:.5;margin-bottom:10px;letter-spacing:.08em;">MAIN</p>
+      <a (click)="sidebarPage='home'"
+         style="display:block;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:.875rem;transition:.2s;"
+         [style.background]="sidebarPage==='home' ? 'rgba(70,120,255,0.2)' : 'transparent'"
+         [style.color]="sidebarPage==='home' ? '#fff' : 'rgba(255,255,255,0.6)'">
+        🏠 Home
+      </a>
+      <a (click)="sidebarPage='profile'"
+         style="display:block;padding:10px 12px;border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:.875rem;transition:.2s;"
+         [style.background]="sidebarPage==='profile' ? 'rgba(70,120,255,0.2)' : 'transparent'"
+         [style.color]="sidebarPage==='profile' ? '#fff' : 'rgba(255,255,255,0.6)'">
+        👤 Profile
+      </a>
+    </nav>
+    <div style="display:flex;gap:10px;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+      <div style="width:34px;height:34px;border-radius:50%;background:#4f8ef7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">
+        {{ employeeName ? employeeName[0].toUpperCase() : 'E' }}
+      </div>
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#e2e8f0;">{{ employeeName }}</p>
+        <p style="font-size:11px;color:#64748b;">Employee</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- HOME CONTENT -->
+  <main class="flex-1 p-8 overflow-y-auto bg-[#060b14] min-h-screen" *ngIf="sidebarPage === 'home'">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1.1;">Employee Project Workspace</h1>
+      <p style="font-family:'DM Sans',sans-serif;font-size:0.875rem;color:#64748b;margin-top:4px;">{{ todayDate }}</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-slate-500 font-medium">Viewing as:</span>
+      <div class="bg-[#111827] border border-white/10 rounded-lg px-4 py-1.5 text-sm text-slate-300">
+        {{ employeeId }}
+      </div>
+    </div>
+  </div>
+
+  <!-- LEAVE NOTIFICATIONS -->
+  <div *ngFor="let leave of getActiveNotifications()"
+    class="mb-4 p-4 rounded-xl text-white flex items-center justify-between"
+    [style.background]="leave.status === 'Approved' ? 'rgba(22,163,74,0.15)' : 'rgba(220,38,38,0.15)'"
+    [style.border]="leave.status === 'Approved' ? '1px solid rgba(22,163,74,0.4)' : '1px solid rgba(220,38,38,0.4)'">
+    <div class="flex items-center gap-3">
+      <span>{{ leave.status === 'Approved' ? '✅' : '❌' }}</span>
+      <p class="text-sm font-semibold">
+        Your leave from <span class="font-bold">{{ leave.fromDate }}</span> to <span class="font-bold">{{ leave.toDate }}</span>
+        has been <span [style.color]="leave.status === 'Approved' ? '#4ade80' : '#f87171'" style="font-weight:700">{{ leave.status }}</span>.
+      </p>
+    </div>
+    <button
+      (click)="markNotificationRead(leave.id)"
+      class="ml-4 text-xs font-bold px-3 py-1 rounded-lg border border-white/20 text-white/70 hover:text-white hover:border-white/50 transition flex-shrink-0">
+      ✓ Read
+    </button>
+  </div>
+
+  <!-- TABS -->
+  <div class="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
+    <button class="tab-btn" [class.active]="activeTab === 'projects'" (click)="activeTab='projects'">📁 Projects</button>
+    <button class="tab-btn" [class.active]="activeTab === 'standup'" (click)="activeTab='standup'">📋 Stand-Up</button>
+    <button class="tab-btn" [class.active]="activeTab === 'leave'" (click)="activeTab='leave'">🏖️ Leave</button>
+  </div>
+
+
+  <!-- ===================== PROJECTS TAB ===================== -->
+  <div *ngIf="activeTab === 'projects'" class="space-y-10">
+
+    <!-- ALLOTTED -->
+    <section>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-blue-400">📂</span>
+        <h2 class="text-white font-bold">Allotted Projects</h2>
+        <span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full">{{ allottedProjects.length }}</span>
+      </div>
+      <p class="text-xs text-slate-500 mb-6">New projects assigned to you by your manager</p>
+
+      <p *ngIf="allottedProjects.length === 0" class="text-slate-500 italic text-sm">No new projects allotted.</p>
+
+      <div *ngFor="let project of allottedProjects"
+        class="bg-[#0d1425] border border-white/5 rounded-2xl p-8 flex items-center justify-between mb-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h3 class="text-white font-bold text-lg">{{ project.name }}</h3>
+            <span class="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded">New</span>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">{{ project.description }}</p>
+          <div class="flex gap-4 text-[11px] text-slate-500">
+            <span>📅 Due {{ project.deadline }}</span>
+            <span>⚙ {{ project.techStack }}</span>
+            <span>👤 {{ project.managerId }}</span>
+          </div>
+        </div>
+        <button (click)="acceptProject(project)" class="btn-accept px-8 py-3">Accept Project</button>
+      </div>
+    </section>
+
+    <!-- CURRENT PROJECTS -->
+    <section>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-emerald-400">📈</span>
+        <h2 class="text-white font-bold">Current Projects</h2>
+        <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full">{{ currentProjects.length }}</span>
+      </div>
+      <p class="text-xs text-slate-500 mb-6">Your active projects — submit weekly updates below</p>
+
+      <p *ngIf="currentProjects.length === 0" class="text-slate-500 italic text-sm">No active projects. Accept a project to start.</p>
+
+      <div *ngFor="let project of currentProjects" class="bg-[#0d1425] border border-white/5 rounded-2xl overflow-hidden mb-6">
+
+        <!-- Project header -->
+        <div class="p-6 border-b border-white/5 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+            <h3 class="text-white font-bold">{{ project.name }}</h3>
+          </div>
+          <div class="flex gap-2">
+            <span class="text-slate-500 text-[10px] font-bold flex items-center gap-1">📅 {{ project.startDate }}</span>
+          </div>
+        </div>
+
+        <div class="p-8 grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+          <!-- LEFT: Description + weekly update form -->
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 uppercase block mb-2">Project Description</label>
+            <p class="text-slate-300 text-sm leading-relaxed mb-4">{{ project.description }}</p>
+            <p class="text-[11px] text-slate-500 mb-8"><span class="font-bold">Tech Stack:</span> {{ project.techStack }}</p>
+
+            <label class="text-[10px] font-bold text-slate-500 uppercase block mb-3">Submit Weekly Update</label>
+            <form (ngSubmit)="submitWeeklyUpdate(project)" class="space-y-3">
+              <input type="date" class="custom-input"
+                [(ngModel)]="weeklyUpdates[project.name].date"
+                [name]="'date-' + project.name" />
+              <textarea class="custom-textarea" rows="4"
+                placeholder="What did you accomplish this week?"
+                [(ngModel)]="weeklyUpdates[project.name].workDone"
+                [name]="'work-' + project.name"></textarea>
+              <div class="flex justify-end">
+                <button type="submit" class="btn-submit px-6 py-2 text-xs">Submit Update</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- RIGHT: Update History -->
+          <div>
+            <div class="flex items-center gap-2 text-white font-bold mb-6">
+              <span class="text-slate-400">📄</span> Update History
+            </div>
+
+            <p *ngIf="!hasWeeklyHistory()" class="text-slate-600 italic text-sm">No history yet.</p>
+
+            <div *ngFor="let log of weeklyHistory" class="flex gap-4 mb-5">
+              <div class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                {{ log.date | slice:8:10 }}
+              </div>
+              <div>
+                <p class="text-blue-400 text-xs font-bold mb-1">{{ log.date }}</p>
+                <p class="text-xs flex items-start gap-1 mb-1"
+                  [class.text-green-400]="log.status === 'ON_TRACK'"
+                  [class.text-red-400]="log.status === 'DELAYED'"
+                  [class.text-yellow-400]="log.status === 'AT_RISK'">
+                  <span>{{ log.status === 'ON_TRACK' ? '✅' : log.status === 'AT_RISK' ? '🔴' : '⚠️' }}</span>
+                  {{ log.work }}
+                </p>
+                <p class="text-[10px] text-slate-500">{{ log.projectName }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- ===================== STANDUP TAB ===================== -->
+  <div *ngIf="activeTab === 'standup'">
+
+    <!-- Manager's standup tasks - full width -->
+    <div class="bg-[#0d1425] rounded-2xl border border-white/5 p-8">
+      <div class="flex items-center gap-2 text-white font-bold text-lg mb-1">
+        <span class="text-blue-400">📋</span> Today's Stand-Up Tasks
+      </div>
+      <p class="text-xs text-slate-500 mb-6">For {{ todayDate }}</p>
+
+      <ng-container *ngFor="let project of currentProjects">
+        <p class="text-[10px] text-slate-500 uppercase font-bold mb-3 tracking-widest">{{ project.name }}</p>
+
+        <p *ngIf="!project.dailyTasks || project.dailyTasks.length === 0"
+          class="text-xs text-slate-600 italic mb-4">No tasks assigned today.</p>
+
+        <div *ngFor="let task of project.dailyTasks"
+          class="mb-4 p-4 rounded-xl border border-white/5 max-w-2xl"
+          style="background:rgba(255,255,255,.03)">
+
+          <p class="text-sm font-semibold text-white mb-3">{{ task.title }}</p>
+          <p class="text-[10px] text-slate-500 mb-3">{{ task.taskDate }}</p>
+
+          <div class="flex gap-4 mb-3">
+            <label class="flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
+              <input type="radio" [name]="'done-' + task.taskId"
+                [(ngModel)]="draftResponses[task.taskId].done" [value]="true" />
+              ✅ Yes
+            </label>
+            <label class="flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
+              <input type="radio" [name]="'done-' + task.taskId"
+                [(ngModel)]="draftResponses[task.taskId].done" [value]="false" />
+              ❌ No
+            </label>
+          </div>
+
+          <textarea
+            *ngIf="draftResponses[task.taskId] && !draftResponses[task.taskId].done"
+            [(ngModel)]="draftResponses[task.taskId].comment"
+            placeholder="State your reason / blocker..."
+            class="custom-textarea" style="min-height:60px;margin-bottom:10px"></textarea>
+
+          <button class="btn-submit" style="padding:7px 16px;font-size:.8rem"
+            (click)="updateDailyTask(project, task)">
+            Send to Manager
+          </button>
+        </div>
+      </ng-container>
+
+      <p *ngIf="currentProjects.length === 0" class="text-slate-500 italic text-sm">
+        No active projects. Accept a project to see stand-up tasks.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ===================== LEAVE TAB ===================== -->
+  <div *ngIf="activeTab === 'leave'" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- LEFT: Apply leave form (unchanged) -->
+    <div class="bg-[#0d1425] rounded-2xl border border-white/5 p-8">
+      <div class="text-white font-bold text-lg mb-1">🏖️ Apply for Leave</div>
+      <p class="text-xs text-slate-500 mb-8">Submit a leave request to your manager</p>
+
+      <form (ngSubmit)="submitLeave()" class="space-y-5">
+        <div>
+          <p class="text-[11px] text-slate-400 mb-2">Leave Type</p>
+          <select class="custom-input" [(ngModel)]="leave.leaveType" name="leaveType">
+            <option value="Sick">Sick Leave</option>
+            <option value="Casual">Casual Leave</option>
+            <option value="Emergency">Emergency Leave</option>
+            <option value="WFH">Work From Home (WFH)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-[11px] text-slate-400 mb-2">From Date</p>
+            <input type="date" class="custom-input" [(ngModel)]="leave.fromDate" name="fromDate" />
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 mb-2">To Date</p>
+            <input type="date" class="custom-input" [(ngModel)]="leave.toDate" name="toDate" />
+          </div>
+        </div>
+        <div>
+          <p class="text-[11px] text-slate-400 mb-2">Reason</p>
+          <textarea class="custom-textarea" rows="4" placeholder="Reason for leave..."
+            [(ngModel)]="leave.reason" name="reason"></textarea>
+        </div>
+
+        <div>
+          <p class="text-[11px] text-slate-400 mb-2">Verification Document (PDF only)</p>
+          <input type="file" accept="application/pdf"
+            (change)="onLeaveDocChange($event)"
+            class="w-full text-sm text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-500/20 file:text-indigo-300 file:cursor-pointer hover:file:bg-indigo-500/30" />
+          <p *ngIf="leaveDocError" class="text-red-400 text-xs mt-1">{{ leaveDocError }}</p>
+          <p *ngIf="leaveDocument && !leaveDocError" class="text-emerald-400 text-xs mt-1">✓ {{ leaveDocument.name }}</p>
+        </div>
+
+        <button type="submit" class="btn-submit px-8 py-3">Submit Application</button>
+      </form>
+    </div>
+
+    <!-- RIGHT: Leave Balance + History -->
+    <div class="space-y-6">
+
+      <!-- Leave Balance -->
+      <div class="bg-[#0d1425] rounded-2xl border border-white/5 p-6">
+        <div class="flex items-center gap-2 text-white font-bold mb-5">
+          <span class="text-emerald-400">🛡</span> Leave Balance
+          <span class="text-[10px] text-slate-500 ml-auto">{{ leaveBalance.yearlyTotal?.used }}/60 used this year</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-[#111827] rounded-xl p-4 text-center border border-white/5">
+            <p class="text-3xl font-extrabold text-red-400">{{ (leaveBalance.sick?.max || 2) - (leaveBalance.sick?.used || 0) }}</p>
+            <p class="text-xs text-slate-500 mt-1">Sick</p>
+            <p class="text-[10px] text-slate-600">{{ leaveBalance.sick?.used || 0 }}/{{ leaveBalance.sick?.max || 2 }} used</p>
+          </div>
+          <div class="bg-[#111827] rounded-xl p-4 text-center border border-white/5">
+            <p class="text-3xl font-extrabold text-emerald-400">{{ (leaveBalance.casual?.max || 2) - (leaveBalance.casual?.used || 0) }}</p>
+            <p class="text-xs text-slate-500 mt-1">Casual</p>
+            <p class="text-[10px] text-slate-600">{{ leaveBalance.casual?.used || 0 }}/{{ leaveBalance.casual?.max || 2 }} used</p>
+          </div>
+          <div class="bg-[#111827] rounded-xl p-4 text-center border border-white/5">
+            <p class="text-3xl font-extrabold text-yellow-400">{{ (leaveBalance.emergency?.max || 1) - (leaveBalance.emergency?.used || 0) }}</p>
+            <p class="text-xs text-slate-500 mt-1">Emergency</p>
+            <p class="text-[10px] text-slate-600">{{ leaveBalance.emergency?.used || 0 }}/{{ leaveBalance.emergency?.max || 1 }} used</p>
+          </div>
+          <div class="bg-[#111827] rounded-xl p-4 text-center border border-white/5">
+            <p class="text-3xl font-extrabold text-blue-400">{{ (leaveBalance.wfh?.max || 8) - (leaveBalance.wfh?.used || 0) }}</p>
+            <p class="text-xs text-slate-500 mt-1">WFH</p>
+            <p class="text-[10px] text-slate-600">{{ leaveBalance.wfh?.used || 0 }}/{{ leaveBalance.wfh?.max || 8 }} used</p>
+          </div>
+        </div>
+
+        <!-- Monthly progress bar -->
+        <div class="mt-4">
+          <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+            <span>Monthly leaves used</span>
+            <span>{{ leaveBalance.monthlyTotal?.used || 0 }}/5</span>
+          </div>
+          <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all"
+              [style.width.%]="((leaveBalance.monthlyTotal?.used || 0) / 5) * 100"
+              [style.background]="(leaveBalance.monthlyTotal?.used || 0) >= 5 ? '#ef4444' : '#6366f1'">
+            </div>
+          </div>
+          <p *ngIf="(leaveBalance.monthlyTotal?.used || 0) >= 5"
+            class="text-xs text-red-400 mt-1 font-semibold">⚠ No more leaves available this month</p>
+        </div>
+      </div>
+
+      <!-- Leave History -->
+      <div class="bg-[#0d1425] rounded-2xl border border-white/5 p-6">
+        <div class="flex items-center gap-2 text-white font-bold mb-1">
+          <span class="text-blue-400">📄</span> Leave History
+          <span class="text-[10px] text-slate-500 ml-auto">This month</span>
+        </div>
+        <p class="text-[10px] text-slate-600 mb-4">Resets every new month</p>
+
+        <div class="grid grid-cols-2 gap-4">
+
+          <!-- LEFT: Pending -->
+          <div>
+            <p class="text-[10px] font-bold text-yellow-500 uppercase mb-3 tracking-widest">⏳ Pending</p>
+            <p *ngIf="getPendingLeaves().length === 0" class="text-xs text-slate-600 italic">No pending leaves.</p>
+            <div *ngFor="let leave of getPendingLeaves()" class="mb-3 p-3 rounded-lg border border-yellow-500/20" style="background:rgba(202,138,4,0.07)">
+              <p class="text-xs text-white font-semibold">{{ leave.fromDate }}<span *ngIf="leave.toDate !== leave.fromDate"> → {{ leave.toDate }}</span></p>
+              <p class="text-[10px] text-slate-400 mt-0.5">{{ leave.leaveType }} · {{ leave.reason }}</p>
+              <span class="text-[10px] font-bold text-yellow-400">Pending</span>
+            </div>
+          </div>
+
+          <!-- RIGHT: Decided (this month) -->
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-widest">📋 Decided</p>
+            <p *ngIf="getDecidedLeaves().length === 0" class="text-xs text-slate-600 italic">No decided leaves this month.</p>
+            <div *ngFor="let leave of getDecidedLeaves()" class="mb-3 p-3 rounded-lg border"
+              [style.border-color]="leave.status === 'Approved' ? 'rgba(22,163,74,0.3)' : 'rgba(220,38,38,0.3)'"
+              [style.background]="leave.status === 'Approved' ? 'rgba(22,163,74,0.07)' : 'rgba(220,38,38,0.07)'">
+              <p class="text-xs text-white font-semibold">{{ leave.fromDate }}<span *ngIf="leave.toDate !== leave.fromDate"> → {{ leave.toDate }}</span></p>
+              <p class="text-[10px] text-slate-400 mt-0.5">{{ leave.leaveType }} · {{ leave.reason }}</p>
+              <span class="text-[10px] font-bold"
+                [style.color]="leave.status === 'Approved' ? '#4ade80' : '#f87171'">
+                {{ leave.status }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+  <!-- PROFILE PAGE -->
+  <div class="flex-1 overflow-y-auto" *ngIf="sidebarPage === 'profile'">
+    <app-profile></app-profile>
+  </div>
+
+</div>

@@ -1,0 +1,83 @@
+<div class="page-bg">
+  <div class="glow"></div>
+
+  <div class="page-card">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Create New Project</h1>
+        <p class="page-subtitle">Fill in the details and assign your team</p>
+      </div>
+      <a routerLink="/dashboard" class="back-btn">← Dashboard</a>
+    </div>
+
+    <!-- Project Name -->
+    <div class="field-group">
+      <label class="field-label">Project Name</label>
+      <input type="text" [(ngModel)]="project.name"
+        placeholder="e.g. CRM System"
+        class="field-input" />
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="field-group">
+      <label class="field-label">Tech Stack</label>
+      <input type="text" [(ngModel)]="project.techStack"
+        (input)="onTechChange()"
+        placeholder="e.g. Angular, Spring Boot, MySQL"
+        class="field-input" />
+    </div>
+
+    <!-- Description -->
+    <div class="field-group">
+      <label class="field-label">Project Description</label>
+      <textarea [(ngModel)]="project.description" rows="4"
+        placeholder="Describe scope, responsibilities, expectations..."
+        class="field-input field-textarea"></textarea>
+    </div>
+
+    <!-- Deadline -->
+    <div class="field-group">
+      <label class="field-label">Deadline</label>
+      <input type="date" [(ngModel)]="project.deadline"
+        class="field-input" />
+    </div>
+
+    <!-- Assign Employees -->
+    <div class="field-group">
+      <label class="field-label">
+        Assign Employees
+        <span class="selected-badge">{{ project.assignedEmployees.length }} selected</span>
+      </label>
+      <p class="field-hint">Skill-matched employees shown based on tech stack</p>
+
+      <p *ngIf="filteredEmployees.length === 0" class="empty-hint">
+        No skill match found. Adjust the tech stack to filter employees.
+      </p>
+
+      <div class="emp-grid">
+        <button type="button"
+          *ngFor="let emp of filteredEmployees"
+          (click)="toggleEmployee(emp.id)"
+          class="emp-card"
+          [class.emp-selected]="isSelected(emp.id)">
+          <div class="emp-check">
+            <span *ngIf="isSelected(emp.id)">✓</span>
+          </div>
+          <div>
+            <p class="emp-name">{{ emp.name }}</p>
+            <p class="emp-skills">{{ getSkillsDisplay(emp) }}</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <a routerLink="/dashboard" class="btn-cancel">Cancel</a>
+      <button (click)="createProject()" class="btn-create">Create Project</button>
+    </div>
+
+  </div>
+</div>

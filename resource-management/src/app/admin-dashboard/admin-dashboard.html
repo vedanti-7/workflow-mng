@@ -1,0 +1,86 @@
+<div class="wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">WorkFlow</div>
+
+    <nav>
+      <p class="menu-title">ADMIN</p>
+      <a class="menu-item active">Dashboard</a>
+      <a class="menu-item">Signup Requests</a>
+    </nav>
+
+    <div class="admin-card">
+      <div class="avatar">AD</div>
+      <div>
+        <p class="admin-name">{{ adminName }}</p>
+        <p class="admin-role">Administrator</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div>
+        <h1>Admin Dashboard</h1>
+        <p class="subtitle">Manage employee signup requests</p>
+      </div>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <p class="stat-label">PENDING REQUESTS</p>
+        <p class="stat-value pending-color">{{ pendingRequests.length }}</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">LOGGED IN AS</p>
+        <p class="stat-value" style="font-size:18px; margin-top:4px;">{{ adminId }}</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">STATUS</p>
+        <p class="stat-value approved-color" style="font-size:18px; margin-top:4px;">Active</p>
+      </div>
+    </div>
+
+    <!-- REQUESTS LIST -->
+    <div class="requests-card">
+      <h2 class="section-title">Pending Signup Requests</h2>
+
+      <p *ngIf="loading" class="loading-text">Loading requests...</p>
+
+      <p *ngIf="!loading && pendingRequests.length === 0" class="empty-text">
+        No pending signup requests at the moment.
+      </p>
+
+      <div *ngFor="let req of pendingRequests" class="request-item">
+        <div>
+          <p class="req-name">
+            {{ req.name }}
+            <span class="req-id">{{ req.id }}</span>
+          </p>
+          <p class="req-designation">{{ req.designation }}</p>
+          <div *ngIf="req.skills">
+            <span *ngFor="let s of (req.skills || '').split(',')" class="skill-tag">
+              {{ s.trim() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a [href]="'http://localhost:8080/auth/admin/signup-requests/' + req.id + '/document'"
+             target="_blank"
+             class="btn-view">📄 View Doc</a>
+          <button class="btn-approve" (click)="approve(req.id)">✓ Approve</button>
+          <button class="btn-reject" (click)="reject(req.id)">✗ Reject</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div>

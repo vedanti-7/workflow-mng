@@ -1,0 +1,167 @@
+<div class="dashboard-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="logo">WorkFlow</div>
+
+    <nav>
+      <p class="menu-title">MAIN</p>
+      <a class="menu-item" [class.active]="activePage==='home'" (click)="activePage='home'">🏠 Home</a>
+      <a class="menu-item" [class.active]="activePage==='profile'" (click)="activePage='profile'">👤 Profile</a>
+    </nav>
+
+    <div class="manager-card">
+      <div class="avatar">MG</div>
+      <div>
+        <p class="name">{{ managerName }}</p>
+        <p class="role">Manager</p>
+      </div>
+    </div>
+
+  </aside>
+
+
+
+  <!-- MAIN CONTENT -->
+  <main class="main" *ngIf="activePage === 'home'">
+
+    <!-- HEADER -->
+    <div class="header">
+
+      <div>
+        <h1>Manager Dashboard</h1>
+        <p class="date">Software Project Management System</p>
+      </div>
+
+      <button
+        (click)="goToCreateProject()"
+        class="create-btn">
+        + Create Project
+      </button>
+
+    </div>
+
+
+
+    <!-- EMPLOYEE STATUS -->
+    <div class="employee-grid">
+
+      <div
+        *ngFor="let emp of employees"
+        class="glass-card employee-card"
+        [ngClass]="{
+          'active-border': getEmployeeStatus(emp.id) === 'Billable',
+          'bench-border': getEmployeeStatus(emp.id) === 'Bench'
+        }">
+
+        <div class="employee-header">
+          <span 
+            class="status-pill"
+            [ngClass]="{
+              'billable-pill': getEmployeeStatus(emp.id) === 'Billable',
+              'bench-pill': getEmployeeStatus(emp.id) === 'Bench'
+            }"
+          >
+            {{ getEmployeeStatus(emp.id) }}
+          </span>
+        </div>
+
+
+        <h3>{{ emp.name }}</h3>
+
+        <p class="employee-designation">
+          {{ emp.designation }}
+        </p>
+
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ACTIVE PROJECTS -->
+    <h2 class="section-title">Active Projects</h2>
+
+    <div class="project-grid">
+
+      <div class="glass-card project-box" *ngFor="let p of projects">
+        <app-project-card
+          [project]="p"
+          (delete)="deleteProject($event)"
+          (standupAdded)="reloadStandupTasks(p)">
+        </app-project-card>
+      </div>
+
+      <div
+        (click)="goToCreateProject()"
+        class="glass-card add-project">
+        <span>+</span>
+        <p>Add New Project</p>
+      </div>
+
+    </div>
+
+
+
+    <!-- LEAVE APPLICATIONS -->
+    <div class="glass-card leave-card">
+
+      <h2 class="section-title">Leave Applications</h2>
+
+      <p *ngIf="managerLeaves.length === 0" class="empty-text">
+        No pending leave applications
+      </p>
+
+      <div *ngFor="let leave of managerLeaves" class="leave-item">
+
+        <div>
+          <p class="leave-name">
+            {{ leave.empId }}
+            <span *ngIf="leave.prjId" class="text-sm text-gray-400">({{ leave.prjId }})</span>
+          </p>
+
+          <p class="leave-date">
+            {{ leave.fromDate }} → {{ leave.toDate }}
+          </p>
+
+          <p class="leave-reason">{{ leave.reason }}</p>
+        </div>
+
+        <div class="leave-actions">
+          <a *ngIf="leave.id"
+             [href]="'http://localhost:8080/api/leaves/' + leave.id + '/document'"
+             target="_blank"
+             style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.5);color:#93c5fd;padding:6px 14px;border-radius:6px;font-weight:600;font-size:13px;text-decoration:none;">
+            📄 Doc
+          </a>
+          <button
+            (click)="approveLeave(leave.id)"
+            style="background:#16a34a;color:white;padding:6px 16px;border-radius:6px;border:none;cursor:pointer;font-weight:600;">
+            ✓ Approve
+          </button>
+          <button
+            (click)="rejectLeave(leave.id)"
+            style="background:#dc2626;color:white;padding:6px 16px;border-radius:6px;border:none;cursor:pointer;font-weight:600;">
+            ✗ Reject
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- EMPLOYEE OVERVIEW -->
+  
+
+  </main>
+
+  <!-- PROFILE PAGE -->
+  <div class="main" *ngIf="activePage === 'profile'" style="padding:0;overflow-y:auto;">
+    <app-profile></app-profile>
+  </div>
+
+</div>

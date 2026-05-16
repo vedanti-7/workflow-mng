@@ -1,0 +1,100 @@
+<div class="signup-bg">
+  <div class="glow"></div>
+
+  <div class="signup-card">
+
+    <div class="logo">WorkFlow<span class="logo-dot"></span></div>
+
+    <h2 class="title">Create Account</h2>
+    <p class="subtitle">Fill in your details to request access</p>
+
+    <form (ngSubmit)="signup()">
+
+      <!-- ID -->
+      <div class="field-group">
+        <label class="field-label">User ID</label>
+        <input type="text" [(ngModel)]="id" name="id"
+          placeholder="emp_yourname"
+          class="field-input" (blur)="onIdBlur()" required />
+        <p *ngIf="idCheckMessage" class="field-hint"
+           [style.color]="idAvailable ? '#34d399' : '#f87171'">
+          {{ idCheckMessage }}
+        </p>
+      </div>
+
+      <!-- Name -->
+      <div class="field-group">
+        <label class="field-label">Full Name</label>
+        <input type="text" [(ngModel)]="name" name="name"
+          placeholder="Your full name"
+          class="field-input" required />
+      </div>
+
+      <!-- Designation -->
+      <div class="field-group">
+        <label class="field-label">Designation</label>
+        <input type="text" [(ngModel)]="designation" name="designation"
+          placeholder="e.g. Backend Developer"
+          class="field-input" required />
+      </div>
+
+      <!-- Skills -->
+      <div class="field-group">
+        <label class="field-label">Skills</label>
+        <input type="text" [(ngModel)]="skills" name="skills"
+          placeholder="Java, Angular, MySQL (comma separated)"
+          class="field-input" required />
+      </div>
+
+      <!-- Email -->
+      <div class="field-group">
+        <label class="field-label">Email Address</label>
+        <input type="email" [(ngModel)]="email" name="email"
+          placeholder="your@email.com (for password recovery)"
+          class="field-input" required />
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <input type="password" [(ngModel)]="password" name="password"
+          placeholder="Min 5 chars, 1 uppercase, 1 special"
+          class="field-input" required />
+        <p class="field-hint" style="color:#64748b;">
+          Must contain 1 capital letter, 1 special character, min 5 characters
+        </p>
+      </div>
+
+      <!-- Document -->
+      <div class="field-group">
+        <label class="field-label">Verification Document (PDF only)</label>
+        <label class="file-label">
+          <input type="file" accept="application/pdf"
+            (change)="onFileChange($event)" class="file-input" required />
+          <span class="file-btn">📎 Choose PDF</span>
+          <span class="file-name">
+            {{ document ? document.name : 'No file chosen' }}
+          </span>
+        </label>
+        <p *ngIf="documentError" class="field-hint" style="color:#f87171;">{{ documentError }}</p>
+        <p *ngIf="document && !documentError" class="field-hint" style="color:#34d399;">✓ {{ document.name }}</p>
+      </div>
+
+      <button type="submit"
+        [disabled]="submitting || idAvailable === false"
+        class="btn-submit">
+        {{ submitting ? 'Submitting...' : 'Request Sign Up' }}
+      </button>
+
+      <p class="hint-text">Your request will be reviewed by an admin before activation.</p>
+
+    </form>
+
+    <div class="divider">or</div>
+    <div class="bottom-link">
+      Already have an account?
+      <a routerLink="/" class="link-btn">Login</a>
+    </div>
+
+  </div>
+</div>

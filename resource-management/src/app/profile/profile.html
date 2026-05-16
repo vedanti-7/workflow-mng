@@ -1,0 +1,115 @@
+<div class="profile-page">
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="avatar-wrap">
+        <div class="avatar-circle">{{ initials }}</div>
+      </div>
+      <div class="hero-text">
+        <h1 class="hero-name">
+          <span class="name-first">{{ profile.name.split(' ')[0] }}</span>
+          <span class="name-last">{{ profile.name.split(' ').slice(1).join(' ') }}</span>
+        </h1>
+        <p class="hero-meta">
+          {{ profile.designation }}
+          <span class="dot">·</span> {{ profile.employmentType }}
+          <span class="dot">·</span> WorkFlow
+        </p>
+        <div class="hero-tags">
+          <span class="tag">📅 Joined {{ profile.joinedDate }}</span>
+          <span class="tag">👤 {{ profile.empId }}</span>
+          <span *ngIf="profile.email" class="tag">✉️ {{ profile.email }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAILS SECTION -->
+  <div class="details-section">
+    <p class="section-label">EMPLOYEE DETAILS</p>
+
+    <div class="info-card">
+
+      <div class="info-header">
+        <span class="info-title">👤 Personal Information</span>
+        <span *ngIf="saving" class="saving-text">Saving...</span>
+      </div>
+
+      <!-- Full Name -->
+      <div class="info-row" (click)="startEdit('name')" [class.editing]="editingField==='name'">
+        <span class="info-key">Full Name</span>
+        <span *ngIf="editingField !== 'name'" class="info-val editable">
+          {{ profile.name }} <span class="edit-hint">✏</span>
+        </span>
+        <span *ngIf="editingField === 'name'" class="inline-edit" (click)="$event.stopPropagation()">
+          <input class="edit-input" [(ngModel)]="editValue" (keyup.enter)="saveField('name')" (keyup.escape)="cancelEdit()" autofocus />
+          <button class="btn-ok" (click)="saveField('name')">✓</button>
+          <button class="btn-x" (click)="cancelEdit()">✕</button>
+        </span>
+      </div>
+
+      <!-- Employee ID — read only -->
+      <div class="info-row">
+        <span class="info-key">Employee ID</span>
+        <span class="info-val accent">{{ profile.empId }}</span>
+      </div>
+
+      <!-- Designation -->
+      <div class="info-row" (click)="startEdit('designation')" [class.editing]="editingField==='designation'">
+        <span class="info-key">Designation</span>
+        <span *ngIf="editingField !== 'designation'" class="info-val editable">
+          {{ profile.designation }} <span class="edit-hint">✏</span>
+        </span>
+        <span *ngIf="editingField === 'designation'" class="inline-edit" (click)="$event.stopPropagation()">
+          <input class="edit-input" [(ngModel)]="editValue" (keyup.enter)="saveField('designation')" (keyup.escape)="cancelEdit()" autofocus />
+          <button class="btn-ok" (click)="saveField('designation')">✓</button>
+          <button class="btn-x" (click)="cancelEdit()">✕</button>
+        </span>
+      </div>
+
+      <!-- Email -->
+      <div class="info-row" (click)="startEdit('email')" [class.editing]="editingField==='email'">
+        <span class="info-key">Email</span>
+        <span *ngIf="editingField !== 'email'" class="info-val editable">
+          {{ profile.email || '— add email' }} <span class="edit-hint">✏</span>
+        </span>
+        <span *ngIf="editingField === 'email'" class="inline-edit" (click)="$event.stopPropagation()">
+          <input class="edit-input" type="email" [(ngModel)]="editValue" (keyup.enter)="saveField('email')" (keyup.escape)="cancelEdit()" autofocus />
+          <button class="btn-ok" (click)="saveField('email')">✓</button>
+          <button class="btn-x" (click)="cancelEdit()">✕</button>
+        </span>
+      </div>
+
+      <!-- Employment Type -->
+      <div class="info-row" (click)="startEdit('employmentType')" [class.editing]="editingField==='employmentType'">
+        <span class="info-key">Employment Type</span>
+        <span *ngIf="editingField !== 'employmentType'" class="info-val editable">
+          <span class="type-pill" [style.background]="employmentColor + '22'" [style.border-color]="employmentColor + '55'" [style.color]="employmentColor">
+            {{ profile.employmentType }}
+          </span>
+          <span class="edit-hint">✏</span>
+        </span>
+        <span *ngIf="editingField === 'employmentType'" class="inline-edit" (click)="$event.stopPropagation()">
+          <select class="edit-input" [(ngModel)]="editValue" style="min-width:160px;">
+            <option>Full-Time</option>
+            <option>Part-Time</option>
+            <option>Contractor</option>
+            <option>Freelancer</option>
+          </select>
+          <button class="btn-ok" (click)="saveField('employmentType')">✓</button>
+          <button class="btn-x" (click)="cancelEdit()">✕</button>
+        </span>
+      </div>
+
+      <!-- Date of Joining — read only -->
+      <div class="info-row">
+        <span class="info-key">Date of Joining</span>
+        <span class="info-val">{{ profile.joinedDate }}</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
