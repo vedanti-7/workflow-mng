@@ -23,7 +23,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // allowedOriginPatterns is required when allowCredentials = true
-        config.setAllowedOriginPatterns(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
+        config.setAllowedOriginPatterns(List.of("http://localhost:4200", "http://127.0.0.1:4200","https://workflow-frontend-fabj.onrender.com"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
